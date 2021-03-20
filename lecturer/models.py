@@ -7,7 +7,7 @@ class Lecturer(models.Model):
     pass_hash = models.CharField(max_length=128)
 
     def __str__(self):
-        return self.name
+        return self.username
 
     class Meta:
         db_table = "Lecturer"
