@@ -10,4 +10,4 @@ class Student(models.Model):
         return self.name
 
     class Meta:
-        db_table = "student"
+        db_table = "Student"
