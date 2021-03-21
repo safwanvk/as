@@ -15,19 +15,25 @@ from rest_framework.parsers import JSONParser
 # Get student's attendance history
 @api_view(['GET'])
 def student_attendance(request, *args, **kwargs):
-    std_id = request.GET.get('sid')
-
     try:
-        std_id = validation.sid(std_id)
-    except ValueError:
-        return Response({"message": "No valid student ID (sid)"}, status=400)
 
-    std_ats = Attendance.objects.filter(sid=std_id)
-    if not std_ats.exists():
-        return Response({"message": "Attendance Not Found"}, status=404)
-    obj = std_ats.first()
-    serializer = StudentAttendanceSerializer(obj)
-    return Response(serializer.data, status=200)
+        std_id = request.GET.get('sid')
+
+        try:
+            std_id = validation.sid(std_id)
+        except ValueError:
+            return Response({"message": "No valid student ID (sid)"}, status=400)
+
+        std_ats = Attendance.objects.filter(sid=std_id)
+        if not std_ats.exists():
+            return Response({"message": "Student Attendance Not Found"}, status=404)
+        obj = std_ats.first()
+        serializer = StudentAttendanceSerializer(obj)
+        return Response(serializer.data, status=200)
+    
+    except Exception as e:
+        print(e)
+        return Response({"message": "A server error occurred"}, status=500)
 
 # Endpoint called when student signs into their class
 @api_view(['POST'])
@@ -69,6 +75,27 @@ def attend(request, *args, **kwargs):
             
     except IntegrityError:
         return Response({"message": "Already signed in"}, status=200)
+    except Exception as e:
+        print(e)
+        return Response({"message": "A server error occurred"}, status=500)
+
+# Get event's attendance history
+@api_view(['GET'])
+def event_attendance(request, *args, **kwargs):
+    try:
+    
+        event_id = request.GET.get('event')
+
+        if not event_id:
+            return Response({"message": "Invalid event ID"}, status=400)
+
+        event_ats = Attendance.objects.filter(event_id=event_id)
+        if not event_ats.exists():
+            return Response({"message": "Event Attendance Not Found"}, status=404)
+        obj = event_ats.first()
+        serializer = StudentAttendanceSerializer(obj)
+        return Response(serializer.data, status=200)
+    
     except Exception as e:
         print(e)
         return Response({"message": "A server error occurred"}, status=500)
