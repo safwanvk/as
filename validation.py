@@ -20,3 +20,14 @@ def sid(value):
         raise ValueError("sid (Student ID) must be <=7 digits long")
 
     return value
+
+def event_id(value):
+    """
+    Event ID must be 16 chars long, string
+    :param value: event id
+    :return: valid event id
+    """
+    value = str(value)
+    if len(value) is not 16:
+        raise ValueError("Event ID must be 16 characters long")
+    return value

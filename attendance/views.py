@@ -5,6 +5,9 @@ from rest_framework.response import Response
 import validation
 from .models import *
 from .serializer import *
+import datetime
+from django.db import IntegrityError
+from rest_framework.parsers import JSONParser 
 
 # Create your views here.
 
@@ -24,3 +27,48 @@ def student_attendance(request, *args, **kwargs):
     obj = std_ats.first()
     serializer = StudentAttendanceSerializer(obj)
     return Response(serializer.data, status=200)
+
+# Endpoint called when student signs into their class
+@api_view(['POST'])
+def attend(request, *args, **kwargs):
+
+    data = JSONParser().parse(request)
+    print(data)
+
+    std_id = data.get('user')
+    event_uid = data.get('event')
+
+    print(std_id, event_uid)
+
+    if not std_id or not event_uid:
+        return Response('ValueError: SID or Event_id not found', 400)
+
+    try:
+        try:
+            std_id = validation.sid(std_id)
+        except ValueError:
+            return Response({"message": "Invalid student ID"}, status=400)
+
+        try:
+            event_uid = validation.event_id(event_uid)
+        except ValueError:
+            return Response({"message": "Invalid event ID"}, status=400)
+
+        arrival = datetime.datetime.now()
+        arrival = arrival.strftime("%Y-%m-%d %H:%M:%S")
+
+        reg = Attendance.objects.create(
+                    sid=Student.objects.get(sid=std_id), 
+                    arrival=arrival,
+                    event_id=Event.objects.get(event_id=event_uid),
+            )
+        serializer = StudentAttendanceSerializer(reg)
+        message = 'Successfully signed in'
+        return Response(serializer.data,message, status=200)
+
+            
+    except IntegrityError:
+        return Response({"message": "Already signed in"}, status=200)
+    except Exception as e:
+        print(e)
+        return Response({"message": "A server error occurred"}, status=500)
