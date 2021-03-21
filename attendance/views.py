@@ -16,6 +16,7 @@ from rest_framework.parsers import JSONParser
 @api_view(['GET'])
 def student_attendance(request, *args, **kwargs):
     std_id = request.GET.get('sid')
+
     try:
         std_id = validation.sid(std_id)
     except ValueError:
@@ -23,7 +24,7 @@ def student_attendance(request, *args, **kwargs):
 
     std_ats = Attendance.objects.filter(sid=std_id)
     if not std_ats.exists():
-        return Response({}, status=404)
+        return Response({"message": "Attendance Not Found"}, status=404)
     obj = std_ats.first()
     serializer = StudentAttendanceSerializer(obj)
     return Response(serializer.data, status=200)
@@ -62,9 +63,8 @@ def attend(request, *args, **kwargs):
                     arrival=arrival,
                     event_id=Event.objects.get(event_id=event_uid),
             )
-        serializer = StudentAttendanceSerializer(reg)
-        message = 'Successfully signed in'
-        return Response(serializer.data,message, status=200)
+
+        return Response({"message": "Successfully signed in"} ,status=200)
 
             
     except IntegrityError:
