@@ -8,6 +8,8 @@ from rest_framework.response import Response
 
 from .models import *
 from .serializer import *
+import datetime
+import uuid
 
 # Create your views here.
 
@@ -56,3 +58,42 @@ def  event_details(request, *args, **kwargs):
     except Exception as e:
         print(e)
         return Response({"message": "A server error occurred"}, status=500)
+
+# Start lesson by creating event
+@api_view(['POST'])
+def start_lesson(request, *args, **kwargs):
+
+    data = JSONParser().parse(request)
+
+    lecturer_username = data.get('username')
+    room = data.get('room')
+    start_str = data.get('start')
+    end_str = data.get('end')
+
+    # If any of the values are not consistent with what is stored, then a response
+    # is returned saying "parameters are missing" and an error code 400 is returned.
+    if not (lecturer_username and room and start_str and end_str):
+        return Response({"message": "Parameters missing"}, status=400)
+
+    try:
+        start = datetime.datetime.strptime(start_str, "%Y-%m-%d %H:%M:%S")
+        end = datetime.datetime.strptime(end_str, "%Y-%m-%d %H:%M:%S")
+    except Exception as e:
+        print(e)
+        return Response({"message": "Invalid datetime"}, status=400)
+
+    try:
+        event_id = str(uuid.uuid4()).replace('-', '')[:16]
+
+        event = Event.objects.create(
+                    event_id=event_id, 
+                    room=room,
+                    datetime_start=start,
+                    datetime_end=end,
+                    lecturer_username=Lecturer.objects.get(username=lecturer_username)
+            )
+
+        return Response({"event_id": event_id} ,status=200)
+
+    except:
+        return Response({"message": "Can't create new event"} ,status=200)
