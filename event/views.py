@@ -33,3 +33,26 @@ def lecturer_events(request, *args, **kwargs):
     except Exception as e:
         print(e)
         return Response({"message": "A server error occurred"}, status=500)
+
+# Get event's details
+@api_view(['GET'])
+def  event_details(request, *args, **kwargs):
+    try:
+    
+        event_id = request.GET.get('id')
+
+        if not event_id:
+            return Response({"message": "Invalid event ID"}, status=400)
+
+        lec_ats = Event.objects.filter(event_id=event_id)
+
+        if not lec_ats.exists():
+            return Response({"message": "Event Not Found"}, status=404)
+
+        lec_ats = lec_ats.first()
+        serializer = EventSerializer(lec_ats)
+        return Response(serializer.data, status=200)
+    
+    except Exception as e:
+        print(e)
+        return Response({"message": "A server error occurred"}, status=500)
