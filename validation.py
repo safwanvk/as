@@ -28,6 +28,14 @@ def event_id(value):
     :return: valid event id
     """
     value = str(value)
-    if len(value) is not 16:
+    if len(value) != 16:
         raise ValueError("Event ID must be 16 characters long")
     return value
+
+def session_id_is_valid(session_id):
+    print(session_id)
+    if not session_id:
+        return False
+    if len(str(session_id)) != 32:
+        return False
+    return True
