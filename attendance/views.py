@@ -25,10 +25,11 @@ def student_attendance(request, *args, **kwargs):
             return Response({"message": "No valid student ID (sid)"}, status=400)
 
         std_ats = Attendance.objects.filter(sid=std_id)
+
         if not std_ats.exists():
             return Response({"message": "Student Attendance Not Found"}, status=404)
-        obj = std_ats.first()
-        serializer = StudentAttendanceSerializer(obj)
+
+        serializer = AttendanceSerializer(std_ats, many=True)
         return Response(serializer.data, status=200)
     
     except Exception as e:
@@ -90,10 +91,11 @@ def event_attendance(request, *args, **kwargs):
             return Response({"message": "Invalid event ID"}, status=400)
 
         event_ats = Attendance.objects.filter(event_id=event_id)
+        
         if not event_ats.exists():
             return Response({"message": "Event Attendance Not Found"}, status=404)
-        obj = event_ats.first()
-        serializer = StudentAttendanceSerializer(obj)
+
+        serializer = AttendanceSerializer(event_ats, many=True)
         return Response(serializer.data, status=200)
     
     except Exception as e:
