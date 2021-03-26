@@ -39,3 +39,28 @@ def session_id_is_valid(session_id):
     if len(str(session_id)) != 32:
         return False
     return True
+
+def room_code(value):
+    """
+    Get valid room code
+    Must be a string, made up exclusively of uppercase letters and numbers
+    :param value: room code
+    :return: valid room code
+    """
+    if not isinstance(value, str):
+        try:
+            value = value.encode('ascii', 'ignore')
+        except:
+            raise ValueError("Room code must be a string, not %s" % type(value))
+
+    # Make the value uppercase
+    value = value.upper()
+
+    allowed = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+    filtered = ''
+    for char in value:
+        if char in allowed:
+            filtered += char
+    value = filtered
+
+    return value
