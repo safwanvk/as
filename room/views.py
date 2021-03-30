@@ -48,29 +48,58 @@ def get_room(request, *args, **kwargs):
 @api_view(['POST'])
 def create_room(request, *args, **kwargs):
 
-    room_data = JSONParser().parse(request)
-    room_serializer = RoomSerializer(data=room_data)
-    if room_serializer.is_valid():
-        room_serializer.save()
-        return Response(room_serializer.data, status=status.HTTP_201_CREATED) 
-    return Response(room_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    try:
+        room_data = JSONParser().parse(request)
+        room_serializer = RoomSerializer(data=room_data)
+        if room_serializer.is_valid():
+            room_serializer.save()
+            return Response(room_serializer.data, status=status.HTTP_201_CREATED) 
+        return Response(room_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    except Exception as e:
+        print(e)
+        return Response({"message": "A server error occurred"}, status=500)
+
 
 # update room
 @api_view(['PUT'])
 def update_room(request, pk):
+
+    try:
     
-    room_data = JSONParser().parse(request)
+        room_data = JSONParser().parse(request)
 
-    try: 
-        room = Building.objects.get(pk=pk) 
-    except Building.DoesNotExist: 
-        return Response({'message': 'The room does not exist'}, status=status.HTTP_404_NOT_FOUND) 
+        try: 
+            room = Building.objects.get(pk=pk) 
+        except Building.DoesNotExist: 
+            return Response({'message': 'The Room does not exist'}, status=status.HTTP_404_NOT_FOUND) 
 
-    room_serializer = RoomSerializer(room, data=room_data) 
-    if room_serializer.is_valid(): 
-        room_serializer.save() 
-        return Response(room_serializer.data) 
-    return Response(room_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        room_serializer = RoomSerializer(room, data=room_data) 
+        if room_serializer.is_valid(): 
+            room_serializer.save() 
+            return Response(room_serializer.data) 
+        return Response(room_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    except Exception as e:
+        print(e)
+        return Response({"message": "A server error occurred"}, status=500)
+
+# delete room
+@api_view(['DELETE'])
+def delete_room(request, pk):
+
+    try:
+
+        try: 
+            room = Building.objects.get(pk=pk) 
+        except Building.DoesNotExist: 
+            return Response({'message': 'The Room does not exist'}, status=status.HTTP_404_NOT_FOUND) 
+
+        room.delete() 
+        return Response({'message': 'Room was deleted successfully!'}, status=status.HTTP_204_NO_CONTENT)
+    
+    except Exception as e:
+        print(e)
+        return Response({"message": "A server error occurred"}, status=500)
 
 
 
