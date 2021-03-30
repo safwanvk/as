@@ -10,6 +10,7 @@ from django.db import IntegrityError
 from rest_framework.parsers import JSONParser 
 import hashlib
 import uuid
+from django.contrib.auth.hashers import make_password
 
 # Lecturer login
 @api_view(['POST'])
@@ -37,9 +38,7 @@ def lecturer_login(request, *args, **kwargs):
 
         print(serializer.data)
 
-        password_hash = hashlib.sha512(password.encode('utf-8')).hexdigest()
-
-        if serializer.data.get('pass_hash') != password_hash:
+        if serializer.data.get('pass_hash') != make_password(password):
             return Response({"message": "Password incorrect"}, status=401)
 
         session_key = uuid.uuid4().hex
@@ -74,6 +73,52 @@ def session_check(request, *args, **kwargs):
     # TODO: If expiry datetime precedes current datetime, return False
 
     return Response({"logged_in": True}, status=200)
+
+
+# creating lecture
+@api_view(['POST'])
+def create_lecturer(request, *args, **kwargs):
+
+    data = JSONParser().parse(request)
+
+    username = data.get('username')
+    name = data.get('name')
+    password = data.get('password')
+
+    # If any of the values are not consistent with what is stored, then a response
+    # is returned saying "parameters are missing" and an error code 400 is returned.
+    if not (username and name and password):
+        return Response({"message": "Parameters missing"}, status=400)
+
+    try:
+        username = validation.username(username)
+    except ValueError:
+        return Response({"message": "Invalid Username"}, status=400)
+
+    try:
+        name = validation.name(name)
+    except ValueError:
+        return Response({"message": "Invalid Name"}, status=400)
+
+
+    try:
+        lec = Lecturer.objects.filter(username=username)
+
+        if lec.exists():
+            return Response({"message": f"lecturer already exist with username {username}."}, status=404)
+            
+
+        lecturer = Lecturer.objects.create(
+                    username=username, 
+                    name=name,
+                    pass_hash=make_password(password)
+            )
+
+        return Response({"msg": "Success"} ,status=200)
+
+    except Exception as e:
+        print(e)
+        return Response({"message": "Can't create lecturer"} ,status=200)
 
 
 

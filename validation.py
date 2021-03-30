@@ -64,3 +64,34 @@ def room_code(value):
     value = filtered
 
     return value
+
+def name(value):
+    """
+    Get valid name
+    Must be a string
+    :param value: name
+    :return: valid name
+    """
+    if not isinstance(value, str):
+        raise ValueError("Name must be an string")
+
+    # Make first letter of each word uppercase
+    value = value.title()
+
+    return value
+
+
+def username(value):
+    """
+    Get valid username
+    Must be a string
+    :param value: username
+    :return: valid username
+    """
+    if not isinstance(value, str):
+        try:
+            value = value.encode('ascii', 'ignore')
+        except:
+            raise ValueError("Username must be a string, not %s" % type(value))
+
+    return value
