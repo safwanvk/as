@@ -138,6 +138,20 @@ def delete_lecturer(request, pk):
         print(e)
         return Response({"message": "A server error occurred"}, status=500)
 
+@api_view(['GET'])
+def get_lecturer(request, *args, **kwargs):
+    try:
+        lecturers = Lecturer.objects.all()
+        
+        lecturers_serializer = LecturerSerializer(lecturers, many=True)
+        for i in lecturers_serializer.data:
+            del i['pass_hash']
+        return Response(lecturers_serializer.data)
+
+    except Exception as e:
+        print(e)
+        return Response({"message": "A server error occurred"}, status=500)
+
 
 
 
