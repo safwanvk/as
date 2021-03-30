@@ -8,9 +8,9 @@ from .serializer import *
 from datetime import datetime, timedelta
 from django.db import IntegrityError
 from rest_framework.parsers import JSONParser 
-import hashlib
 import uuid
 from django.contrib.auth.hashers import make_password
+from rest_framework import status
 
 # Lecturer login
 @api_view(['POST'])
@@ -119,6 +119,26 @@ def create_lecturer(request, *args, **kwargs):
     except Exception as e:
         print(e)
         return Response({"message": "Can't create lecturer"} ,status=200)
+
+# delete lecturer
+@api_view(['DELETE'])
+def delete_lecturer(request, pk):
+
+    try:
+
+        try: 
+            lecturer = Lecturer.objects.get(username=pk) 
+        except Lecturer.DoesNotExist: 
+            return Response({'message': 'The Lecturer does not exist'}, status=status.HTTP_404_NOT_FOUND) 
+
+        lecturer.delete() 
+        return Response({'message': 'Lecturer was deleted successfully!'}, status=status.HTTP_204_NO_CONTENT)
+    
+    except Exception as e:
+        print(e)
+        return Response({"message": "A server error occurred"}, status=500)
+
+
 
 
 

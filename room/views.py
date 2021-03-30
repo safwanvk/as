@@ -69,7 +69,7 @@ def update_room(request, pk):
         room_data = JSONParser().parse(request)
 
         try: 
-            room = Building.objects.get(pk=pk) 
+            room = Building.objects.get(code=pk) 
         except Building.DoesNotExist: 
             return Response({'message': 'The Room does not exist'}, status=status.HTTP_404_NOT_FOUND) 
 
@@ -90,7 +90,7 @@ def delete_room(request, pk):
     try:
 
         try: 
-            room = Building.objects.get(pk=pk) 
+            room = Building.objects.get(code=pk) 
         except Building.DoesNotExist: 
             return Response({'message': 'The Room does not exist'}, status=status.HTTP_404_NOT_FOUND) 
 
