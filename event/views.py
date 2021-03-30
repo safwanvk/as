@@ -100,32 +100,3 @@ def start_lesson(request, *args, **kwargs):
         return Response({"message": "Can't create new event"} ,status=200)
 
 
-
-# Get room
-@api_view(['GET'])
-def get_room(request, *args, **kwargs):
-    try:
-    
-        code = request.GET.get('code')
-
-        if not code:
-            return Response({"message": "Invalid code"}, status=400)
-
-        try:
-            code = validation.room_code(code)
-        except ValueError:
-            return Response({"message": "No valid code"}, status=400)
-
-        room_dict = Building.objects.filter(code=code)
-
-        if not room_dict.exists():
-            return Response({"message": "Room Not Found"}, status=404)
-
-        room_dict = room_dict.first()
-
-        serializer = RoomSerializer(room_dict)
-        return Response(serializer.data, status=200)
-    
-    except Exception as e:
-        print(e)
-        return Response({"message": "A server error occurred"}, status=500)
