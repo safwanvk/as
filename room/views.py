@@ -55,6 +55,24 @@ def create_room(request, *args, **kwargs):
         return Response(room_serializer.data, status=status.HTTP_201_CREATED) 
     return Response(room_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+# update room
+@api_view(['PUT'])
+def update_room(request, pk):
+    
+    room_data = JSONParser().parse(request)
+
+    try: 
+        room = Building.objects.get(pk=pk) 
+    except Building.DoesNotExist: 
+        return Response({'message': 'The room does not exist'}, status=status.HTTP_404_NOT_FOUND) 
+
+    room_serializer = RoomSerializer(room, data=room_data) 
+    if room_serializer.is_valid(): 
+        room_serializer.save() 
+        return Response(room_serializer.data) 
+    return Response(room_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 
 
 
