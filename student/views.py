@@ -132,3 +132,21 @@ def create_student(request, *args, **kwargs):
         print(e)
         return Response({"message": "Can't Create Studeny"} ,status=200)
 
+# delete studnet
+@api_view(['DELETE'])
+def delete_student(request, pk):
+
+    try:
+
+        try: 
+            student = Student.objects.get(sid=pk) 
+        except student.DoesNotExist: 
+            return Response({'message': 'The Student does not exist'}, status=status.HTTP_404_NOT_FOUND) 
+
+        student.delete() 
+        return Response({'message': 'Student was deleted successfully!'}, status=status.HTTP_204_NO_CONTENT)
+    
+    except Exception as e:
+        print(e)
+        return Response({"message": "A server error occurred"}, status=500)
+
