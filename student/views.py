@@ -76,7 +76,16 @@ def session_check(request, *args, **kwargs):
     if not std_ses.exists():
         return Response({"logged_in": False}, status=200)
 
-    # TODO: If expiry datetime precedes current datetime, return False
+    std_ses = std_ses.first()
+    serializer = StudentLoginSessionSerializer(std_ses)
+
+    # If expiry datetime precedes current datetime, return False
+    dates = datetime.now()
+    key_expires = dates.strftime("%Y-%m-%d %H:%M:%S")
+
+
+    if serializer.data.get('expires') == key_expires:
+        return Response({"logged_in": False}, status=200)
 
     return Response({"logged_in": True}, status=200)
 
