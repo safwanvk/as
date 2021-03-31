@@ -62,3 +62,21 @@ def student_login(request, *args, **kwargs):
         print(e)
         return Response({"message": "A server error occurred"}, status=500)
 
+# Check login session is valid
+@api_view(['GET'])
+def session_check(request, *args, **kwargs):
+
+    session_id = request.GET.get('session')
+
+    if not validation.session_id_is_valid(session_id):
+        return Response({"logged_in": False}, status=200)
+
+    std_ses = StudentLoginSessions.objects.filter(session_id=session_id)
+
+    if not std_ses.exists():
+        return Response({"logged_in": False}, status=200)
+
+    # TODO: If expiry datetime precedes current datetime, return False
+
+    return Response({"logged_in": True}, status=200)
+
