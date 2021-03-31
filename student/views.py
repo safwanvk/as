@@ -80,3 +80,55 @@ def session_check(request, *args, **kwargs):
 
     return Response({"logged_in": True}, status=200)
 
+# creating lecture
+@api_view(['POST'])
+def create_student(request, *args, **kwargs):
+
+    data = JSONParser().parse(request)
+    
+    std_id = data.get('sid')
+    username = data.get('username')
+    name = data.get('name')
+    password = data.get('password')
+
+    # If any of the values are not consistent with what is stored, then a response
+    # is returned saying "parameters are missing" and an error code 400 is returned.
+    if not (std_id and username and name and password):
+        return Response({"message": "Parameters missing"}, status=400)
+
+    try:
+        std_id = validation.sid(std_id)
+    except ValueError:
+        return Response({"message": "Invalid student ID"}, status=400)
+
+    try:
+        username = validation.username(username)
+    except ValueError:
+        return Response({"message": "Invalid Username"}, status=400)
+
+    try:
+        name = validation.name(name)
+    except ValueError:
+        return Response({"message": "Invalid Name"}, status=400)
+
+
+    try:
+        std = Student.objects.filter(sid=std_id)
+
+        if std.exists():
+            return Response({"message": f"Student already exist with student id {std_id}."}, status=404)
+            
+
+        student = Student.objects.create(
+            sid=std_id,
+            username=username, 
+            name=name,
+            pass_hash=make_password(password)
+        )
+
+        return Response({"msg": "Success"} ,status=200)
+
+    except Exception as e:
+        print(e)
+        return Response({"message": "Can't Create Studeny"} ,status=200)
+

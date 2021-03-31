@@ -21,5 +21,6 @@ urlpatterns = [
     path('api/attendance/', include('attendance.urls')),
     path('api/event/', include('event.urls')),
     path('api/lecturer/', include('lecturer.urls')),
-    path('api/room/', include('room.urls'))
+    path('api/room/', include('room.urls')),
+    path('api/student/', include('student.urls'))
 ]
