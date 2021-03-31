@@ -10,7 +10,7 @@ from datetime import datetime, timedelta
 from django.db import IntegrityError
 from rest_framework.parsers import JSONParser 
 import uuid
-from django.contrib.auth.hashers import make_password
+from django.contrib.auth.hashers import *
 from rest_framework import status
 
 # Lecturer login
@@ -42,9 +42,9 @@ def student_login(request, *args, **kwargs):
         lec = std.first()
         serializer = StudentSerializer(lec)
 
-        print(serializer.data)
+        ck = check_password(password, serializer.data.get('pass_hash'))
 
-        if serializer.data.get('pass_hash') != make_password(password):
+        if ck != True:
             return Response({"message": "Password incorrect"}, status=401)
 
         session_key = uuid.uuid4().hex
@@ -146,6 +146,20 @@ def delete_student(request, pk):
         student.delete() 
         return Response({'message': 'Student was deleted successfully!'}, status=status.HTTP_204_NO_CONTENT)
     
+    except Exception as e:
+        print(e)
+        return Response({"message": "A server error occurred"}, status=500)
+
+@api_view(['GET'])
+def get_student(request, *args, **kwargs):
+    try:
+        students = Student.objects.all()
+        
+        students_serializer = StudentSerializer(students, many=True)
+        for i in students_serializer.data:
+            del i['pass_hash']
+        return Response(students_serializer.data)
+
     except Exception as e:
         print(e)
         return Response({"message": "A server error occurred"}, status=500)

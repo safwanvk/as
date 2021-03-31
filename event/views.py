@@ -100,3 +100,27 @@ def start_lesson(request, *args, **kwargs):
         return Response({"message": "Can't create new event"} ,status=200)
 
 
+# delete event
+@api_view(['DELETE'])
+def delete_event(request, pk):
+
+    try:
+
+        event_id = request.GET.get('id')
+
+        if not event_id:
+            return Response({"message": "Invalid event ID"}, status=400)
+
+        event_dict = Event.objects.filter(event_id=event_id)
+
+        if not event_dict.exists():
+            return Response({"message": "Event Not Found"}, status=404)
+
+        event_dict.delete() 
+        return Response({'message': 'Event was deleted successfully!'}, status=204)
+    
+    except Exception as e:
+        print(e)
+        return Response({"message": "A server error occurred"}, status=500)
+
+

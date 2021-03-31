@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 from django.db import IntegrityError
 from rest_framework.parsers import JSONParser 
 import uuid
-from django.contrib.auth.hashers import make_password
+from django.contrib.auth.hashers import *
 from rest_framework import status
 
 # Lecturer login
@@ -38,7 +38,11 @@ def lecturer_login(request, *args, **kwargs):
 
         print(serializer.data)
 
-        if serializer.data.get('pass_hash') != make_password(password):
+        print(serializer.data.get('pass_hash'), make_password(password))
+
+        ck = check_password(password, serializer.data.get('pass_hash'))
+
+        if ck != True:
             return Response({"message": "Password incorrect"}, status=401)
 
         session_key = uuid.uuid4().hex
